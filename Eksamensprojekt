@@ -1,0 +1,58 @@
+---
+title: "Eksamen"
+output: html_document
+---
+
+The paragraph 20 questions asked in the Danish Parliament (Folketinget), are questions directed at a secretary of the government from a regular member of parliament. They are used to directly aquire information from the particular secretary, and are usually rather critical of the law they are directed at. 
+
+First we need all our packages
+
+```{r}
+#####Libraries
+library("readr")
+library("plyr")
+library("ggplot2")
+library("dplyr")
+library("rvest")
+library("stringr")
+library("lubridate")
+
+
+```
+First we need to acquire the data. This is done by scraping the website of the Danish Parliament. Many of the issues can be solved simply by scraping the main pages with the question headline, author, department directed at, date and so on. This is done by a scraper functio that we define as such. 
+
+```{r}
+scrape <- function(link){
+  # First we load the website
+  ft_data <- read_html(link, encoding="UTF-8")
+  # Then we get the titles of the questions
+  ft_titler <- as.matrix(ft_data %>% 
+               html_nodes("h3 a") %>%
+               html_text())
+  
+ ft_titler <- as.matrix(str_trim(ft_titler, "both"))
+ ft_titler <- gsub("Endeligt svar", "", ft_titler)
+ 
+  # Then we acquire the wanted information 
+  ft_systematisk = matrix(ft_data %>% 
+                  html_nodes("div p") %>%
+                  html_text())
+  ft_systematisk <- as.matrix(str_trim(ft_systematisk, "both"))
+  #ft_systematisk <- gsub("Endeligt svar", "", ft_systematisk)
+  #ft_systematisk <- 
+  return(ft_systematisk)
+}
+```
+
+Then we need to us our function on the link of our choosing. The link will be set in a loop, to ensure we get all the data right away. Thus we start with 200 views per page at page 1
+
+```{r}
+ft_link <- "http://www.ft.dk/Search.aspx?q=&SearchDepthFull=&Udvalg=&ParagrafTyveType=&StilletTil=&StilletAf=&PeriodenBesvaretFrom=&PeriodenBesvaretTo=&Status=&Emneord=&sf=ps&msf=ps&as=1&Samling=20111&PeriodenStilletFrom=2010-07-01&PeriodenStilletTo=2015-11-21&SortBy=SortDate&SortOrder=asc&pageSize=200&pageNr=1#search"
+
+x1 <- scrape(ft_link)
+print(x1)
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
